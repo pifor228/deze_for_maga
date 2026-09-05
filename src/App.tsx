@@ -10,11 +10,11 @@ function App() {
     <>
       <Header />
 
-      <ProductCard title="iPhone 14" description="Смартфон Apple iPhone 14 128GB" price={79990} />
+      <ProductCard title="iPhone 14" description="Смартфон Apple iPhone 14 128GB" price={79990} category="Смартфоны" />
 
-      <ProductCard title="Samsung Galaxy S23" description="Смартфон Samsung Galaxy S23 256GB" price={89990} />
+      <ProductCard title="Samsung Galaxy S23" description="Смартфон Samsung Galaxy S23 256GB" price={89990} category="Смартфоны" />
 
-      <ProductCard title="Sony WH-1000XM4" description="Беспроводные наушники Sony WH-1000XM4" price={29990} />
+      <ProductCard title="Sony WH-1000XM4" description="Беспроводные наушники Sony WH-1000XM4" price={29990} category="Наушники" />
 
       <Ceader />
       
