@@ -2,22 +2,28 @@ import { useState } from "react";
 
 type ProductCardProps = {
   title: string;
+  description: string;
   price: number;
 };
 
-function ProductCard({ title, price }: ProductCardProps) {
+function ProductCard({ title, description, price }: ProductCardProps) {
+    const [favorite, setFavorite] = useState(false);
     const [count, setCount] = useState(0);
   return (
     
     <section className="product-card">
         <div>
             <h2>{title}</h2>
-            <p>Цена: {price}</p>
+            <p>{description}</p>
+            <p>Цена: {price} руб.</p>
 
-            <p>Счетчик вещей в корзине: {count}</p>
+    <button onClick={() => setFavorite(!favorite)}>
+      {favorite ? "Удалить из корзины" : "Добавить в корзину"}
+    </button>
+          <p>Текущее значение: {count}</p>
 
-            <button onClick={() => setCount(count + 1)}>Добавить в корзину</button>
-            <button onClick={() => setCount(count - 1)}>Удалить из корзины</button>
+      <button onClick={() => setCount(count + 1)}>like</button>
+      <button onClick={() => setCount(count - 1)}>dislike</button>
         </div>
     </section>
   );

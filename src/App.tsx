@@ -1,4 +1,6 @@
+import Ceader from "./Component/Ceader/ceader"
 import Header from "./Component/Header/header"
+import MovieCard from "./Component/MovieCard/moviecard"
 import ProductCard from "./Component/ProductCard/productcard"
 
 function App() {
@@ -8,13 +10,19 @@ function App() {
     <>
       <Header />
 
-      <p></p>
+      <ProductCard title="iPhone 14" description="Смартфон Apple iPhone 14 128GB" price={79990} />
 
-      <ProductCard title="Ноутбук" price={1000} />
+      <ProductCard title="Samsung Galaxy S23" description="Смартфон Samsung Galaxy S23 256GB" price={89990} />
 
-      <ProductCard title="Смартфон" price={500} />
+      <ProductCard title="Sony WH-1000XM4" description="Беспроводные наушники Sony WH-1000XM4" price={29990} />
 
-      <ProductCard title="Планшет" price={800} />
+      <Ceader />
+      
+      <MovieCard title="Friday the 13th" genre="Ужасы" year={1980} />
+
+      <MovieCard title="WALL-E" genre="Анимация" year={2008} />
+
+      <MovieCard title="The Matrix" genre="Научная фантастика" year={1999} />
     </>  
 
   )
