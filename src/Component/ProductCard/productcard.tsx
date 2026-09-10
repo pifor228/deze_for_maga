@@ -11,6 +11,7 @@ function ProductCard({ title, description, price, category }: ProductCardProps) 
     const [favorite, setFavorite] = useState(false);
     const [isvisible, setIsVisible] = useState(false);
     const [count, setCount] = useState(0);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
   return (
     
     <section className="product-card">
@@ -23,13 +24,18 @@ function ProductCard({ title, description, price, category }: ProductCardProps) 
       {isvisible ? "Скрыть" : "Показать"}
     </button>
 
-    <button onClick={() => setFavorite(!favorite)}>
-      {favorite ? "Удалить из корзины" : "Добавить в корзину"}
-    </button>
-          <p>Текущее значение: {count}</p>
+      {(count > 0) ? (
+      <>
+        <p>товаров в корзине: {count}</p>
+      </>
+      ) : (
+      <>
+        <p>ваша корзина пуста </p>
+      </>)}
+      {count > 5 && <p>Вы добавили слишком много товаров в корзину! Добвалять дальше не рекомендуется!</p>}
 
-      <button onClick={() => setCount(count + 1)}>like</button>
-      <button onClick={() => setCount(count - 1)}>dislike</button>
+      <button onClick={() => setCount(count + 1)}>Добавить в корзину</button>
+      <button onClick={() => setCount(count - 1)}>Удалить из корзины</button>
         </div>
     </section>
   );
