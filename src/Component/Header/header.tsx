@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 type HeaderProps = {};
 
@@ -20,8 +20,16 @@ function Header({}: HeaderProps) {
     } else {
       setIsAuth(true);
       setIsAdmin(login.toLowerCase() === "admin");
+      setIsDeleteConfirmationOpen(false);
       setError("");
     }
+  };
+
+  const handleDeleteAccount = () => {
+    setIsAuth(false);
+    setIsDeleteConfirmationOpen(false);
+    setLogin("");
+    setPassword("");
   };
 
   return (
@@ -62,7 +70,7 @@ function Header({}: HeaderProps) {
                 ) : (
                   <div>
                     <p>Вы уверены, что хотите удалить аккаунт?</p>
-                    <button onClick={() => setIsAuth(false)}>Да, удалить</button>
+                    <button onClick={handleDeleteAccount}>Да, удалить</button>
                     <button onClick={() => setIsDeleteConfirmationOpen(false)}>Отмена</button>
                   </div>
                 )}

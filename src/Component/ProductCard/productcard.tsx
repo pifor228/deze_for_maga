@@ -8,10 +8,8 @@ type ProductCardProps = {
 };
 
 function ProductCard({ title, description, price, category }: ProductCardProps) {
-    const [favorite, setFavorite] = useState(false);
     const [isvisible, setIsVisible] = useState(false);
     const [count, setCount] = useState(0);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
   return (
     
     <section className="product-card">
