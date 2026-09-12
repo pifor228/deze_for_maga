@@ -164,7 +164,10 @@ function App() {
   ]);
   const[newTitle, setNewTitle] = useState("");
   const [newGenre, setNewGenre] = useState("");
-
+  const handleDeleteMovie = (id: number) => {
+    const updatedMovies = movie.filter((item) => item.id !== id);
+    setMovie(updatedMovies);
+  }
   const handleAddMovie = () => {
     if (newTitle.trim() !== "" && newGenre.trim() !== "") {
       const newMovie: MovieItem = {
@@ -198,6 +201,15 @@ function App() {
         <option value="Анимация">Анимация</option>
       </select>
       <button onClick={handleAddMovie}>Добавить фильм</button>
+      <h2>Вы передумали добавлять фильмы?</h2>
+      <ul>
+        {movie.map((item) => (
+          <li key={item.id}>
+            {item.movies} - {item.genre}
+            <button onClick={() => handleDeleteMovie(item.id)}>Удалить</button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
