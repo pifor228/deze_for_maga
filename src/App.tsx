@@ -140,7 +140,7 @@ function MovieList({ movie, search }: LessonListProps) {
     item.movies.toLowerCase().includes(search.toLowerCase())
   );
   if (filteredMovies.length === 0) {
-    return <p>Фильмы не найдены</p>;
+    return <p> Прочитал = гей </p>;
   }
 
   return (
@@ -157,17 +157,47 @@ function MovieList({ movie, search }: LessonListProps) {
 function App() {
   const [search, setSearch] = useState("");
 
-  const movie = [
+  const [movie, setMovie] = useState<MovieItem[]>([
     { id: 1, movies: "Интерстеллар(Вы так сильно любите этот фильм?)", genre: "Фантастика" },
     { id: 2, movies: "1+1", genre: "Драма И Комедия" },
     { id: 3, movies: "Матрица", genre: "Фантастика" },
-  ];
+  ]);
+  const[newTitle, setNewTitle] = useState("");
+  const [newGenre, setNewGenre] = useState("");
 
+  const handleAddMovie = () => {
+    if (newTitle.trim() !== "" && newGenre.trim() !== "") {
+      const newMovie: MovieItem = {
+        id: movie.length + 1,
+        movies: newTitle,
+        genre: newGenre,
+      };
+      setMovie([...movie, newMovie]);
+      setNewTitle("");
+      setNewGenre("");
+    }
+  };
   return (
     <div>
       <h1>Поиск фильмов</h1>
       <SearchInput search={search} onSearchChange={setSearch} />
       <MovieList movie={movie} search={search} />
+      <h2>Добавить фильм</h2>
+      <input
+        type="text"
+        placeholder="Название фильма"
+        value={newTitle}
+        onChange={(event) => setNewTitle(event.target.value)}
+      />
+      <select name="genre" id="genre" value={newGenre} onChange={(event) => setNewGenre(event.target.value)}>
+        <option value="">Выберите жанр</option>
+        <option value="Фантастика">Фантастика</option>
+        <option value="Драма">Драма</option>
+        <option value="Комедия">Комедия</option>
+        <option value="Ужасы">Ужасы</option>
+        <option value="Анимация">Анимация</option>
+      </select>
+      <button onClick={handleAddMovie}>Добавить фильм</button>
     </div>
   );
 }

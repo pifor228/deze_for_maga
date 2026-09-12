@@ -17,7 +17,7 @@ function MovieCard({ title, genre, year }: MovieCardProps) {
             <p>Год выпуска: {year}</p>
 
     <button onClick={() => setFavorite(!favorite)}>
-      {favorite ? "В избранном" : "Добавить в избранное"}
+      {favorite ? "Удалить" : "Добавить"}
     </button>
         </div>
     </section>
