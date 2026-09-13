@@ -115,13 +115,14 @@ type SearchInputProps = {
 
 type MovieItem = {
   id: number;
-  movies: string;
+  title: string;
   genre: string;
 };
 
-type LessonListProps = {
-  movie: MovieItem[];
+type MovieListProps = {
+  movies: MovieItem[];
   search: string;
+  selectedGenre: string;
 };
 
 function SearchInput({ search, onSearchChange }: SearchInputProps) {
@@ -135,19 +136,22 @@ function SearchInput({ search, onSearchChange }: SearchInputProps) {
   );
 }
 
-function MovieList({ movie, search }: LessonListProps) {
-  const filteredMovies = movie.filter((item) =>
-    item.movies.toLowerCase().includes(search.toLowerCase())
-  );
+function MovieList({ movies, search, selectedGenre }: MovieListProps) {
+  const filteredMovies = movies.filter((item) => {
+    const matchesSearch = item.title.toLowerCase().includes(search.toLowerCase());
+    const matchesGenre = selectedGenre === "Все" || item.genre === selectedGenre;
+    return matchesSearch && matchesGenre;
+  });
+
   if (filteredMovies.length === 0) {
-    return <p> Прочитал = гей </p>;
+    return <p>Фильмы не найдены</p>;
   }
 
   return (
     <ul>
       {filteredMovies.map((item) => (
         <li key={item.id}>
-          {item.movies} - {item.genre}
+          {item.title} - {item.genre}
         </li>
       ))}
     </ul>
@@ -156,35 +160,84 @@ function MovieList({ movie, search }: LessonListProps) {
 
 function App() {
   const [search, setSearch] = useState("");
-
-  const [movie, setMovie] = useState<MovieItem[]>([
-    { id: 1, movies: "Интерстеллар(Вы так сильно любите этот фильм?)", genre: "Фантастика" },
-    { id: 2, movies: "1+1", genre: "Драма И Комедия" },
-    { id: 3, movies: "Матрица", genre: "Фантастика" },
+  const [selectedGenre, setSelectedGenre] = useState("Все");
+  const [movies, setMovies] = useState<MovieItem[]>([
+    { id: 1, title: "Интерстеллар", genre: "Фантастика" },
+    { id: 2, title: "1+1", genre: "Драма" },
+    { id: 3, title: "Матрица", genre: "Фантастика" },
+    { id: 4, title: "Пятница 13", genre: "Ужасы"},
+    { id: 5, title: "Валли", genre: "Анимация"}
   ]);
-  const[newTitle, setNewTitle] = useState("");
+  const [newTitle, setNewTitle] = useState("");
   const [newGenre, setNewGenre] = useState("");
+  const [editingMovieId, setEditingMovieId] = useState<number | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editGenre, setEditGenre] = useState("");
+
   const handleDeleteMovie = (id: number) => {
-    const updatedMovies = movie.filter((item) => item.id !== id);
-    setMovie(updatedMovies);
-  }
-  const handleAddMovie = () => {
-    if (newTitle.trim() !== "" && newGenre.trim() !== "") {
-      const newMovie: MovieItem = {
-        id: movie.length + 1,
-        movies: newTitle,
-        genre: newGenre,
-      };
-      setMovie([...movie, newMovie]);
-      setNewTitle("");
-      setNewGenre("");
+    setMovies((currentMovies) => currentMovies.filter((item) => item.id !== id));
+
+    if (editingMovieId === id) {
+      setEditingMovieId(null);
+      setEditTitle("");
+      setEditGenre("");
     }
   };
+
+  const handleAddMovie = () => {
+    if (newTitle.trim() === "" || newGenre.trim() === "") {
+      return;
+    }
+
+    const newMovie: MovieItem = {
+      id: Date.now() + Math.random(),
+      title: newTitle.trim(),
+      genre: newGenre,
+    };
+
+    setMovies((currentMovies) => [...currentMovies, newMovie]);
+    setNewTitle("");
+    setNewGenre("");
+  };
+
+  const startEditing = (movie: MovieItem) => {
+    setEditingMovieId(movie.id);
+    setEditTitle(movie.title);
+    setEditGenre(movie.genre);
+  };
+
+  const saveMovieChanges = (id: number) => {
+    if (editTitle.trim() === "" || editGenre.trim() === "") {
+      return;
+    }
+
+    setMovies((currentMovies) =>
+      currentMovies.map((item) =>
+        item.id === id ? { ...item, title: editTitle.trim(), genre: editGenre } : item
+      )
+    );
+    setEditingMovieId(null);
+    setEditTitle("");
+    setEditGenre("");
+  };
+
   return (
     <div>
       <h1>Поиск фильмов</h1>
+
+      <select value={selectedGenre} onChange={(event) => setSelectedGenre(event.target.value)}>
+        <option value="Все">Все</option>
+        <option value="Фантастика">Фантастика</option>
+        <option value="Комедия">Комедия</option>
+        <option value="Боевик">Боевик</option>
+        <option value="Драма">Драма</option>
+        <option value="Ужасы">Ужасы</option>
+        <option value="Анимация">Анимация</option>
+      </select>
+
       <SearchInput search={search} onSearchChange={setSearch} />
-      <MovieList movie={movie} search={search} />
+      <MovieList movies={movies} search={search} selectedGenre={selectedGenre} />
+
       <h2>Добавить фильм</h2>
       <input
         type="text"
@@ -192,23 +245,57 @@ function App() {
         value={newTitle}
         onChange={(event) => setNewTitle(event.target.value)}
       />
-      <select name="genre" id="genre" value={newGenre} onChange={(event) => setNewGenre(event.target.value)}>
+      <select value={newGenre} onChange={(event) => setNewGenre(event.target.value)}>
         <option value="">Выберите жанр</option>
         <option value="Фантастика">Фантастика</option>
         <option value="Драма">Драма</option>
         <option value="Комедия">Комедия</option>
         <option value="Ужасы">Ужасы</option>
         <option value="Анимация">Анимация</option>
+        <option value="Боевик">Боевик</option>
       </select>
       <button onClick={handleAddMovie}>Добавить фильм</button>
-      <h2>Вы передумали добавлять фильмы?</h2>
+
+      <h2>Список фильмов</h2>
       <ul>
-        {movie.map((item) => (
-          <li key={item.id}>
-            {item.movies} - {item.genre}
-            <button onClick={() => handleDeleteMovie(item.id)}>Удалить</button>
-          </li>
-        ))}
+        {movies.map((item) => {
+          const isEditing = editingMovieId === item.id;
+
+          return (
+            <li key={item.id}>
+              {isEditing ? (
+                <>
+                  <input
+                    type="text"
+                    value={editTitle}
+                    onChange={(event) => setEditTitle(event.target.value)}
+                  />
+                  <select value={editGenre} onChange={(event) => setEditGenre(event.target.value)}>
+                    <option value="">Выберите жанр</option>
+                    <option value="Фантастика">Фантастика</option>
+                    <option value="Драма">Драма</option>
+                    <option value="Комедия">Комедия</option>
+                    <option value="Ужасы">Ужасы</option>
+                    <option value="Анимация">Анимация</option>
+                    <option value="Боевик">Боевик</option>
+                  </select>
+                  <button onClick={() => saveMovieChanges(item.id)}>Сохранить</button>
+                  <button onClick={() => {
+                    setEditingMovieId(null);
+                    setEditTitle("");
+                    setEditGenre("");
+                  }}>Отмена</button>
+                </>
+              ) : (
+                <>
+                  {item.title} - {item.genre}
+                  <button onClick={() => startEditing(item)}>Редактировать</button>
+                  <button onClick={() => handleDeleteMovie(item.id)}>Удалить</button>
+                </>
+              )}
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
