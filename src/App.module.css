@@ -183,3 +183,32 @@
   }
 } */
 
+.card {
+  padding: 20px;
+  border-radius: 16px;
+  background: #030303;
+  border: 1px solid #007bff;
+}
+
+.title {
+  margin: 0 0 8px;
+  color: #007bff;
+}
+
+.text {
+  margin: 0;
+  color: #00ff805d;
+}
+
+.ImgCard {
+  padding: 20px;
+  border-radius: 16px;
+  background: #f8f6f6;
+  border: 1px solid #dadfe4;
+}
+.ButtonCard {
+  padding: 20px;
+  border-radius: 16px;
+  background: #9d9d9d;
+  border: 1px solid #007bff;
+}
