@@ -306,152 +306,152 @@
 
 
 
-import { useEffect, useState } from "react";
-import styles from "./App.module.css";
-type Lesson = {
-  id: number;
-  title: string;
-  owner: string;
-  img: string;
-};
+// import { useEffect, useState } from "react";
+// import styles from "./App.module.css";
+// type Lesson = {
+//   id: number;
+//   title: string;
+//   owner: string;
+//   img: string;
+// };
 
-type LessonItemProps = {
-  title: string;
-  owner: string;
-  img: string;
-  isCurrent: boolean;
-  isPlaying: boolean;
-  progress: number;
-  duration: number;
-  onPlay: () => void;
-  onPause: () => void;
-  onNext: () => void;
-  onSeek: (value: number) => void;
-};
+// type LessonItemProps = {
+//   title: string;
+//   owner: string;
+//   img: string;
+//   isCurrent: boolean;
+//   isPlaying: boolean;
+//   progress: number;
+//   duration: number;
+//   onPlay: () => void;
+//   onPause: () => void;
+//   onNext: () => void;
+//   onSeek: (value: number) => void;
+// };
 
 
-function LessonItem({ title, owner, img, isCurrent, isPlaying, progress, duration, onPlay, onPause, onNext, onSeek }: LessonItemProps) {
-  return (
-    <li>
-      <strong className={styles.title} >
-        <img className={styles.ImgCard} src={img} alt={title} width="500" />
+// function LessonItem({ title, owner, img, isCurrent, isPlaying, progress, duration, onPlay, onPause, onNext, onSeek }: LessonItemProps) {
+//   return (
+//     <li>
+//       <strong className={styles.title} >
+//         <img className={styles.ImgCard} src={img} alt={title} width="500" />
 
         
-        <h3>{title}</h3> 
-        <p>{owner}</p> 
-      <button
-        className={styles.ButtonCard}
-        onClick={onPlay}
-      >
-        Play
-      </button>
-      <button
-        className={styles.ButtonCard}
-        onClick={onPause}
-      >
-        Pause
-      </button>
-      <button
-        className={styles.ButtonCard}
-        onClick={onNext}
-      >
-        Next track
-      </button>
-      <div>
-        <input
-          type="range"
-          min="0"
-          max={duration}
-          value={progress}
-          onChange={(event) => onSeek(Number(event.target.value))}
-          aria-label={`Прогресс песни ${title}`}
-        />
-        <span>{Math.floor(progress / 60)}:{String(Math.floor(progress % 60)).padStart(2, "0")} / {Math.floor(duration / 60)}:00</span>
-      </div>
-      {isCurrent && <small>{isPlaying ? "Сейчас играет" : "На паузе"}</small>}
-        </strong>
-    </li>
-  );
-}
+//         <h3>{title}</h3> 
+//         <p>{owner}</p> 
+//       <button
+//         className={styles.ButtonCard}
+//         onClick={onPlay}
+//       >
+//         Play
+//       </button>
+//       <button
+//         className={styles.ButtonCard}
+//         onClick={onPause}
+//       >
+//         Pause
+//       </button>
+//       <button
+//         className={styles.ButtonCard}
+//         onClick={onNext}
+//       >
+//         Next track
+//       </button>
+//       <div>
+//         <input
+//           type="range"
+//           min="0"
+//           max={duration}
+//           value={progress}
+//           onChange={(event) => onSeek(Number(event.target.value))}
+//           aria-label={`Прогресс песни ${title}`}
+//         />
+//         <span>{Math.floor(progress / 60)}:{String(Math.floor(progress % 60)).padStart(2, "0")} / {Math.floor(duration / 60)}:00</span>
+//       </div>
+//       {isCurrent && <small>{isPlaying ? "Сейчас играет" : "На паузе"}</small>}
+//         </strong>
+//     </li>
+//   );
+// }
 
-function App() {
-  const lessons: Lesson[] = [
-    { id: 1, title: "Omega Flowey", owner: "Toby Fox", img: "https://avatars.mds.yandex.net/i?id=3c5fee497d7edf4ff612179dfb01ef80110c131b-12722406-images-thumbs&n=13" },
-    { id: 2, title: "Asgore", owner: "Toby Fox", img: "https://avatars.mds.yandex.net/i?id=62c462b2deaf5e8bd472affc9aaa61f007ac146e-12541653-images-thumbs&n=13" },
-    { id: 3, title: "c418", owner: "Daniel Rosenfeld", img: "https://avatars.mds.yandex.net/i?id=b9aca68b24d3e5c2f8cfa601d47c4d162cd5b865-10994959-images-thumbs&n=13" },
-    { id: 4, title: "Mortal Combat", owner: "Oliver Adams & Maurice Engelen", img: "https://avatars.mds.yandex.net/i?id=26485c68d29a955df3ccc37a90068e236d071962-4948622-images-thumbs&n=13" },
-    { id: 5, title: "Golden Wind", owner: "Yuugo Kanno", img: "https://avatars.mds.yandex.net/i?id=9f568dafc037a339390c4e4bad1b6752fe5e493e-5658514-images-thumbs&n=13" },
-  ];
-  const trackDuration = 180;
-  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [progress, setProgress] = useState(() => lessons.map(() => 0));
+// function App() {
+//   const lessons: Lesson[] = [
+//     { id: 1, title: "Omega Flowey", owner: "Toby Fox", img: "https://avatars.mds.yandex.net/i?id=3c5fee497d7edf4ff612179dfb01ef80110c131b-12722406-images-thumbs&n=13" },
+//     { id: 2, title: "Asgore", owner: "Toby Fox", img: "https://avatars.mds.yandex.net/i?id=62c462b2deaf5e8bd472affc9aaa61f007ac146e-12541653-images-thumbs&n=13" },
+//     { id: 3, title: "c418", owner: "Daniel Rosenfeld", img: "https://avatars.mds.yandex.net/i?id=b9aca68b24d3e5c2f8cfa601d47c4d162cd5b865-10994959-images-thumbs&n=13" },
+//     { id: 4, title: "Mortal Combat", owner: "Oliver Adams & Maurice Engelen", img: "https://avatars.mds.yandex.net/i?id=26485c68d29a955df3ccc37a90068e236d071962-4948622-images-thumbs&n=13" },
+//     { id: 5, title: "Golden Wind", owner: "Yuugo Kanno", img: "https://avatars.mds.yandex.net/i?id=9f568dafc037a339390c4e4bad1b6752fe5e493e-5658514-images-thumbs&n=13" },
+//   ];
+//   const trackDuration = 180;
+//   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
+//   const [isPlaying, setIsPlaying] = useState(false);
+//   const [progress, setProgress] = useState(() => lessons.map(() => 0));
 
-  const playTrack = (index: number) => {
-    setCurrentTrackIndex(index);
-    setIsPlaying(true);
-  };
+//   const playTrack = (index: number) => {
+//     setCurrentTrackIndex(index);
+//     setIsPlaying(true);
+//   };
 
-  const pauseTrack = () => {
-    setIsPlaying(false);
-  };
+//   const pauseTrack = () => {
+//     setIsPlaying(false);
+//   };
 
-  const playNext = () => {
-    playTrack((currentTrackIndex + 1) % lessons.length);
-  };
+//   const playNext = () => {
+//     playTrack((currentTrackIndex + 1) % lessons.length);
+//   };
 
-  useEffect(() => {
-    if (!isPlaying) return;
+//   useEffect(() => {
+//     if (!isPlaying) return;
 
-    const timer = window.setInterval(() => {
-      setProgress((currentProgress) => {
-        const updatedProgress = [...currentProgress];
-        const nextValue = updatedProgress[currentTrackIndex] + 1;
+//     const timer = window.setInterval(() => {
+//       setProgress((currentProgress) => {
+//         const updatedProgress = [...currentProgress];
+//         const nextValue = updatedProgress[currentTrackIndex] + 1;
 
-        if (nextValue >= trackDuration) {
-          updatedProgress[currentTrackIndex] = 0;
-          setCurrentTrackIndex((index) => (index + 1) % lessons.length);
-        } else {
-          updatedProgress[currentTrackIndex] = nextValue;
-        }
+//         if (nextValue >= trackDuration) {
+//           updatedProgress[currentTrackIndex] = 0;
+//           setCurrentTrackIndex((index) => (index + 1) % lessons.length);
+//         } else {
+//           updatedProgress[currentTrackIndex] = nextValue;
+//         }
 
-        return updatedProgress;
-      });
-    }, 1000);
+//         return updatedProgress;
+//       });
+//     }, 1000);
 
-    return () => window.clearInterval(timer);
-  }, [currentTrackIndex, isPlaying, lessons.length]);
+//     return () => window.clearInterval(timer);
+//   }, [currentTrackIndex, isPlaying, lessons.length]);
 
-  return (
-    <div>
-      <ul>
-        {lessons.map((lesson) => (
-        <section className={styles.card} key={lesson.id}>
+//   return (
+//     <div>
+//       <ul>
+//         {lessons.map((lesson) => (
+//         <section className={styles.card} key={lesson.id}>
 
-          <LessonItem 
+//           <LessonItem 
         
-            key={lesson.id}
-            title={lesson.title}
-            owner={lesson.owner}
-            img={lesson.img}
-            isCurrent={lessons[currentTrackIndex].id === lesson.id}
-            isPlaying={isPlaying}
-            progress={progress[lessons.indexOf(lesson)]}
-            duration={trackDuration}
-            onPlay={() => playTrack(lessons.indexOf(lesson))}
-            onPause={pauseTrack}
-            onNext={playNext}
-            onSeek={(value) => setProgress((currentProgress) => currentProgress.map((item, index) => index === lessons.indexOf(lesson) ? value : item))}
-          />
+//             key={lesson.id}
+//             title={lesson.title}
+//             owner={lesson.owner}
+//             img={lesson.img}
+//             isCurrent={lessons[currentTrackIndex].id === lesson.id}
+//             isPlaying={isPlaying}
+//             progress={progress[lessons.indexOf(lesson)]}
+//             duration={trackDuration}
+//             onPlay={() => playTrack(lessons.indexOf(lesson))}
+//             onPause={pauseTrack}
+//             onNext={playNext}
+//             onSeek={(value) => setProgress((currentProgress) => currentProgress.map((item, index) => index === lessons.indexOf(lesson) ? value : item))}
+//           />
     
-        </section>
-        ))}
-      </ul>
-    </div>
-  );
-}
+//         </section>
+//         ))}
+//       </ul>
+//     </div>
+//   );
+// }
 
-export default App;
+// export default App;
 
 // import { useState } from "react";
 // import axios from "axios";
@@ -546,3 +546,60 @@ export default App;
 // );
 
 // }
+
+import { useState, useEffect } from "react";
+import { getNews } from "./mock/api";
+
+export default function NewsFeed() {
+  const [posts, setPosts] = useState<any[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [limit, setLimit] = useState<number>(10);
+  const [selectedTag, setSelectedTag] = useState<string>("");
+
+  useEffect(() => {
+    setLoading(true);
+    getNews(limit).then((data) => {
+      setPosts(data.posts)
+      setLoading(false);
+    });
+  }, [limit]);
+  const filteredPosts = selectedTag
+    ? posts.filter((posts) => posts.tags.includes(selectedTag))
+    : posts;
+
+  const allTags = Array.from(new Set(posts.flatMap((p) => p.tags)));
+  
+  return(
+    <div>
+      <h1>Лента новостей</h1>
+
+      <div>
+        <button onClick={() =>setSelectedTag("")}>все</button>
+        {allTags.map((tag) => (
+          <button key={tag} onClick={() => setSelectedTag(tag)}>
+            #{tag}
+          </button>
+        ))}
+      </div>
+      
+      {loading && <p>Загрузка...</p>}
+      {!loading &&
+        filteredPosts.map((post) => (
+          <div key={post.id}>
+            <h3>{post.title}</h3>
+            <p>{post.body}</p>
+          <div>
+             {post.reactions?.likes || 0}  {post.reactions?.dislikes || 0}
+          </div>
+          <div>{post.tags.map((t: string) => `#${t} `)}</div>
+          </div>
+        ))}
+    {!loading && (
+      <button onClick={() => setLimit((prev) => prev + 10)}>
+        загрузить еще 10 постов или новостей хз
+      </button>
+    )}
+    </div>
+  );
+
+}
