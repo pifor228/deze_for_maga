@@ -95,6 +95,46 @@ p {
   margin: 0;
 }
 
+main {
+  padding: 0 24px 48px;
+}
+
+.cat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin: 24px 0;
+}
+
+.cat-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  background: var(--bg);
+}
+
+.cat-card img {
+  display: block;
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.cat-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.favorites-section {
+  margin-top: 48px;
+  border-top: 1px solid var(--border);
+  padding-top: 24px;
+}
+
 code,
 .counter {
   font-family: var(--mono);

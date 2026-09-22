@@ -547,59 +547,101 @@
 
 // }
 
-import { useState, useEffect } from "react";
-import { getNews } from "./mock/api";
+import { useEffect, useState } from "react";
+import { getCats, type CatImage } from "./mock/api";
 
-export default function NewsFeed() {
-  const [posts, setPosts] = useState<any[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [limit, setLimit] = useState<number>(10);
-  const [selectedTag, setSelectedTag] = useState<string>("");
+export default function App() {
+  const [cats, setCats] = useState<CatImage[]>([]);
+  const [likedIds, setLikedIds] = useState<string[]>([]);
+  const [favoriteCats, setFavoriteCats] = useState<CatImage[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
+    loadCats();
+  }, []);
+
+  const loadCats = () => {
     setLoading(true);
-    getNews(limit).then((data) => {
-      setPosts(data.posts)
-      setLoading(false);
-    });
-  }, [limit]);
-  const filteredPosts = selectedTag
-    ? posts.filter((posts) => posts.tags.includes(selectedTag))
-    : posts;
+    setError("");
 
-  const allTags = Array.from(new Set(posts.flatMap((p) => p.tags)));
-  
-  return(
-    <div>
-      <h1>Лента новостей</h1>
+    getCats(10)
+      .then(setCats)
+      .catch(() => setError("Не получилось загрузить котиков"))
+      .finally(() => setLoading(false));
+  };
 
-      <div>
-        <button onClick={() =>setSelectedTag("")}>все</button>
-        {allTags.map((tag) => (
-          <button key={tag} onClick={() => setSelectedTag(tag)}>
-            #{tag}
-          </button>
+  const toggleLike = (id: string) => {
+    setLikedIds((currentIds) =>
+      currentIds.includes(id)
+        ? currentIds.filter((currentId) => currentId !== id)
+        : [...currentIds, id],
+    );
+  };
+
+  const toggleFavorite = (cat: CatImage) => {
+    setFavoriteCats((currentCats) =>
+      currentCats.some((currentCat) => currentCat.id === cat.id)
+        ? currentCats.filter((currentCat) => currentCat.id !== cat.id)
+        : [...currentCats, cat],
+    );
+  };
+
+  const isFavorite = (id: string) =>
+    favoriteCats.some((cat) => cat.id === id);
+
+  return (
+    <main>
+      <h1>Котики</h1>
+
+      {loading && <p>Загрузка...</p>}
+      {error && <p>{error}</p>}
+
+      <div className="cat-grid">
+        {cats.map((cat) => (
+          <article className="cat-card" key={cat.id}>
+            <img src={cat.url} alt="Котик" width={250} height={250} />
+            <div className="cat-actions">
+              <button
+                type="button"
+                aria-pressed={likedIds.includes(cat.id)}
+                onClick={() => toggleLike(cat.id)}
+              >
+                {likedIds.includes(cat.id) ? "Убрать лайк" : "Лайк"}
+              </button>
+              <button
+                type="button"
+                aria-pressed={isFavorite(cat.id)}
+                onClick={() => toggleFavorite(cat)}
+              >
+                {isFavorite(cat.id) ? "Убрать из избранного" : "В избранное"}
+              </button>
+            </div>
+          </article>
         ))}
       </div>
-      
-      {loading && <p>Загрузка...</p>}
-      {!loading &&
-        filteredPosts.map((post) => (
-          <div key={post.id}>
-            <h3>{post.title}</h3>
-            <p>{post.body}</p>
-          <div>
-             {post.reactions?.likes || 0}  {post.reactions?.dislikes || 0}
-          </div>
-          <div>{post.tags.map((t: string) => `#${t} `)}</div>
-          </div>
-        ))}
-    {!loading && (
-      <button onClick={() => setLimit((prev) => prev + 10)}>
-        загрузить еще 10 постов или новостей хз
-      </button>
-    )}
-    </div>
-  );
 
+      <button type="button" onClick={loadCats} disabled={loading}>
+        {loading ? "Загрузка..." : "Показать ещё котиков"}
+      </button>
+
+      <section className="favorites-section">
+        <h2>Избранные котики</h2>
+        {favoriteCats.length === 0 ? (
+          <p>Пока нет избранных котиков</p>
+        ) : (
+          <div className="cat-grid">
+            {favoriteCats.map((cat) => (
+              <article className="cat-card" key={cat.id}>
+                <img src={cat.url} alt="Избранный котик" width={250} height={250} />
+                <button type="button" onClick={() => toggleFavorite(cat)}>
+                  Убрать из избранного
+                </button>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+    </main>
+  );
 }
