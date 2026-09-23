@@ -9,3 +9,12 @@ class BurgerOrder(models.Model):
 
     def __str__(self) -> str:
         return f"заказ от {self.customer}"
+
+class Charaters(models.Model):
+    name = models.CharField(max_length=50)
+    level = models.IntegerField()
+    weapon = models.CharField(max_length=50)
+    description = models.TextField()
+
+    def __str__(self):
+        return self.name

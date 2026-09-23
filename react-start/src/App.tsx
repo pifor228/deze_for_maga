@@ -547,101 +547,110 @@
 
 // }
 
-import { useEffect, useState } from "react";
-import { getCats, type CatImage } from "./mock/api";
 
-export default function App() {
-  const [cats, setCats] = useState<CatImage[]>([]);
-  const [likedIds, setLikedIds] = useState<string[]>([]);
-  const [favoriteCats, setFavoriteCats] = useState<CatImage[]>([]);
-  const [loading, setLoading] = useState(true);
+import { useEffect, useState } from "react";
+import axios from "axios";
+
+interface Character {
+  id: number;
+  name: string;
+  level: number;
+  weapon: string;
+  description: string;
+}
+
+const api = axios.create({
+  baseURL: "http://127.0.0.1:8000/api",
+});
+
+function App() {
+  const [characters, setCharacters] = useState<Character[]>([]);
+  const [name, setName] = useState("");
+  const [level, setLevel] = useState(1);
+  const [weapon, setWeapon] = useState("");
+  const [description, setDescription] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
-    loadCats();
+    api
+      .get<Character[]>("/characters/")
+      .then((response) => setCharacters(response.data))
+      .catch(() => setError("Не удалось загрузить персонажей"));
   }, []);
 
-  const loadCats = () => {
-    setLoading(true);
+  const createCharacter = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     setError("");
 
-    getCats(10)
-      .then(setCats)
-      .catch(() => setError("Не получилось загрузить котиков"))
-      .finally(() => setLoading(false));
-  };
+    try {
+      const response = await api.post<Character>("/characters/", {
+        name,
+        level,
+        weapon,
+        description,
+      });
 
-  const toggleLike = (id: string) => {
-    setLikedIds((currentIds) =>
-      currentIds.includes(id)
-        ? currentIds.filter((currentId) => currentId !== id)
-        : [...currentIds, id],
-    );
+      setCharacters((currentCharacters) => [...currentCharacters, response.data]);
+      setName("");
+      setLevel(1);
+      setWeapon("");
+      setDescription("");
+    } catch {
+      setError("Не удалось создать персонажа");
+    }
   };
-
-  const toggleFavorite = (cat: CatImage) => {
-    setFavoriteCats((currentCats) =>
-      currentCats.some((currentCat) => currentCat.id === cat.id)
-        ? currentCats.filter((currentCat) => currentCat.id !== cat.id)
-        : [...currentCats, cat],
-    );
-  };
-
-  const isFavorite = (id: string) =>
-    favoriteCats.some((cat) => cat.id === id);
 
   return (
     <main>
-      <h1>Котики</h1>
+      <h1>Персонажи</h1>
 
-      {loading && <p>Загрузка...</p>}
-      {error && <p>{error}</p>}
+      {error && <p role="alert">{error}</p>}
 
-      <div className="cat-grid">
-        {cats.map((cat) => (
-          <article className="cat-card" key={cat.id}>
-            <img src={cat.url} alt="Котик" width={250} height={250} />
-            <div className="cat-actions">
-              <button
-                type="button"
-                aria-pressed={likedIds.includes(cat.id)}
-                onClick={() => toggleLike(cat.id)}
-              >
-                {likedIds.includes(cat.id) ? "Убрать лайк" : "Лайк"}
-              </button>
-              <button
-                type="button"
-                aria-pressed={isFavorite(cat.id)}
-                onClick={() => toggleFavorite(cat)}
-              >
-                {isFavorite(cat.id) ? "Убрать из избранного" : "В избранное"}
-              </button>
-            </div>
+      <form onSubmit={createCharacter}>
+        <input
+          type="text"
+          placeholder="Имя"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          required
+        />
+        <input
+          type="number"
+          min="1"
+          placeholder="Уровень"
+          value={level}
+          onChange={(event) => setLevel(Number(event.target.value))}
+          required
+        />
+        <input
+          type="text"
+          placeholder="Оружие"
+          value={weapon}
+          onChange={(event) => setWeapon(event.target.value)}
+          required
+        />
+        <textarea
+          placeholder="Описание"
+          value={description}
+          onChange={(event) => setDescription(event.target.value)}
+          required
+        />
+        <button type="submit">Создать персонажа</button>
+      </form>
+
+      <section>
+        {characters.map((character) => (
+          <article key={character.id}>
+            <h2>{character.name}</h2>
+            <p>Уровень: {character.level}</p>
+            <p>Оружие: {character.weapon}</p>
+            <p>{character.description}</p>
           </article>
         ))}
-      </div>
-
-      <button type="button" onClick={loadCats} disabled={loading}>
-        {loading ? "Загрузка..." : "Показать ещё котиков"}
-      </button>
-
-      <section className="favorites-section">
-        <h2>Избранные котики</h2>
-        {favoriteCats.length === 0 ? (
-          <p>Пока нет избранных котиков</p>
-        ) : (
-          <div className="cat-grid">
-            {favoriteCats.map((cat) => (
-              <article className="cat-card" key={cat.id}>
-                <img src={cat.url} alt="Избранный котик" width={250} height={250} />
-                <button type="button" onClick={() => toggleFavorite(cat)}>
-                  Убрать из избранного
-                </button>
-              </article>
-            ))}
-          </div>
-        )}
       </section>
     </main>
   );
 }
+
+export default App;
+
