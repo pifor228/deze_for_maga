@@ -11,4 +11,4 @@ class BurgerOrdersSerilizer(serializers.ModelSerializer):
 class CharatersSerilizer(serializers.ModelSerializer):
     class Meta:
         model = Charaters
-        fields = ['id', 'name', 'level', 'weapon', 'description']
+        fields = ['id', 'name', 'level', "charater_class", 'weapon', 'description']

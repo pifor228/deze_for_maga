@@ -13,6 +13,7 @@ class BurgerOrder(models.Model):
 class Charaters(models.Model):
     name = models.CharField(max_length=50)
     level = models.IntegerField()
+    charater_class = models.CharField()
     weapon = models.CharField(max_length=50)
     description = models.TextField()
 
