@@ -554,6 +554,7 @@ import axios from "axios";
 interface Character {
   id: number;
   name: string;
+  charater_class: string;
   level: number;
   weapon: string;
   description: string;
@@ -568,6 +569,7 @@ function App() {
   const [name, setName] = useState("");
   const [level, setLevel] = useState(1);
   const [weapon, setWeapon] = useState("");
+  const [charater_class, setCharater_Class] = useState("");
   const [description, setDescription] = useState("");
   const [error, setError] = useState("");
 
@@ -586,6 +588,7 @@ function App() {
       const response = await api.post<Character>("/characters/", {
         name,
         level,
+        charater_class,
         weapon,
         description,
       });
@@ -594,6 +597,7 @@ function App() {
       setName("");
       setLevel(1);
       setWeapon("");
+      setCharater_Class("");
       setDescription("");
     } catch {
       setError("Не удалось создать персонажа");
@@ -635,6 +639,12 @@ function App() {
           onChange={(event) => setDescription(event.target.value)}
           required
         />
+        <textarea
+          placeholder="Класс"
+          value={charater_class}
+          onChange={(event) => setCharater_Class(event.target.value)}
+          required
+        />
         <button type="submit">Создать персонажа</button>
       </form>
 
@@ -642,6 +652,7 @@ function App() {
         {characters.map((character) => (
           <article key={character.id}>
             <h2>{character.name}</h2>
+            <p>{character.charater_class}</p>
             <p>Уровень: {character.level}</p>
             <p>Оружие: {character.weapon}</p>
             <p>{character.description}</p>
