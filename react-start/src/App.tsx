@@ -548,120 +548,212 @@
 // }
 
 
+// import { useEffect, useState } from "react";
+// import axios from "axios";
+
+// interface Character {
+//   id: number;
+//   name: string;
+//   charater_class: string;
+//   level: number;
+//   weapon: string;
+//   description: string;
+// }
+
+// const api = axios.create({
+//   baseURL: "http://127.0.0.1:8000/api",
+// });
+
+// function App() {
+//   const [characters, setCharacters] = useState<Character[]>([]);
+//   const [name, setName] = useState("");
+//   const [level, setLevel] = useState(1);
+//   const [weapon, setWeapon] = useState("");
+//   const [charater_class, setCharater_Class] = useState("");
+//   const [description, setDescription] = useState("");
+//   const [error, setError] = useState("");
+
+//   useEffect(() => {
+//     api
+//       .get<Character[]>("/characters/")
+//       .then((response) => setCharacters(response.data))
+//       .catch(() => setError("Не удалось загрузить персонажей"));
+//   }, []);
+
+//   const createCharacter = async (event: React.FormEvent<HTMLFormElement>) => {
+//     event.preventDefault();
+//     setError("");
+
+//     try {
+//       const response = await api.post<Character>("/characters/", {
+//         name,
+//         level,
+//         charater_class,
+//         weapon,
+//         description,
+//       });
+
+//       setCharacters((currentCharacters) => [...currentCharacters, response.data]);
+//       setName("");
+//       setLevel(1);
+//       setWeapon("");
+//       setCharater_Class("");
+//       setDescription("");
+//     } catch {
+//       setError("Не удалось создать персонажа");
+//     }
+//   };
+
+//   return (
+//     <main>
+//       <h1>Персонажи</h1>
+
+//       {error && <p role="alert">{error}</p>}
+
+//       <form onSubmit={createCharacter}>
+//         <input
+//           type="text"
+//           placeholder="Имя"
+//           value={name}
+//           onChange={(event) => setName(event.target.value)}
+//           required
+//         />
+//         <input
+//           type="number"
+//           min="1"
+//           placeholder="Уровень"
+//           value={level}
+//           onChange={(event) => setLevel(Number(event.target.value))}
+//           required
+//         />
+//         <input
+//           type="text"
+//           placeholder="Оружие"
+//           value={weapon}
+//           onChange={(event) => setWeapon(event.target.value)}
+//           required
+//         />
+//         <textarea
+//           placeholder="Описание"
+//           value={description}
+//           onChange={(event) => setDescription(event.target.value)}
+//           required
+//         />
+//         <textarea
+//           placeholder="Класс"
+//           value={charater_class}
+//           onChange={(event) => setCharater_Class(event.target.value)}
+//           required
+//         />
+//         <button type="submit">Создать персонажа</button>
+//       </form>
+
+//       <section>
+//         {characters.map((character) => (
+//           <article key={character.id}>
+//             <h2>{character.name}</h2>
+//             <p>{character.charater_class}</p>
+//             <p>Уровень: {character.level}</p>
+//             <p>Оружие: {character.weapon}</p>
+//             <p>{character.description}</p>
+//           </article>
+//         ))}
+//       </section>
+//     </main>
+//   );
+// }
+
+// export default App;
+
+
+
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-interface Character {
+type User = {
   id: number;
-  name: string;
-  charater_class: string;
-  level: number;
-  weapon: string;
-  description: string;
-}
+  username: string;
+  email: string;
+};
 
 const api = axios.create({
   baseURL: "http://127.0.0.1:8000/api",
 });
 
 function App() {
-  const [characters, setCharacters] = useState<Character[]>([]);
-  const [name, setName] = useState("");
-  const [level, setLevel] = useState(1);
-  const [weapon, setWeapon] = useState("");
-  const [charater_class, setCharater_Class] = useState("");
-  const [description, setDescription] = useState("");
-  const [error, setError] = useState("");
+  const [users, setUsers] = useState<User[]>([]);
+  const [selectedUserId, setSelectedUserId] = useState<string>("");
+  const [text, setText] = useState("");
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     api
-      .get<Character[]>("/characters/")
-      .then((response) => setCharacters(response.data))
-      .catch(() => setError("Не удалось загрузить персонажей"));
+      .get<User[]>("/users/")
+      .then((response) => {
+        setUsers(response.data);
+        if (response.data.length > 0) {
+          setSelectedUserId(String(response.data[0].id));
+        }
+      })
+      .catch(() => setMessage("Не удалось загрузить пользователей"));
   }, []);
 
-  const createCharacter = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setError("");
+    setMessage("");
 
     try {
-      const response = await api.post<Character>("/characters/", {
-        name,
-        level,
-        charater_class,
-        weapon,
-        description,
+      await api.post("/notes/", {
+        user_id: Number(selectedUserId),
+        text,
       });
 
-      setCharacters((currentCharacters) => [...currentCharacters, response.data]);
-      setName("");
-      setLevel(1);
-      setWeapon("");
-      setCharater_Class("");
-      setDescription("");
+      const selectedUser = users.find((user) => user.id === Number(selectedUserId));
+      setMessage(`Заметка создана для ${selectedUser?.username ?? "пользователя"}`);
+      setText("");
     } catch {
-      setError("Не удалось создать персонажа");
+      setMessage("Не удалось отправить заметку");
     }
   };
 
   return (
     <main>
-      <h1>Персонажи</h1>
+      <h1>Заметка</h1>
 
-      {error && <p role="alert">{error}</p>}
+      {message && <p>{message}</p>}
 
-      <form onSubmit={createCharacter}>
-        <input
-          type="text"
-          placeholder="Имя"
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-          required
-        />
-        <input
-          type="number"
-          min="1"
-          placeholder="Уровень"
-          value={level}
-          onChange={(event) => setLevel(Number(event.target.value))}
-          required
-        />
-        <input
-          type="text"
-          placeholder="Оружие"
-          value={weapon}
-          onChange={(event) => setWeapon(event.target.value)}
-          required
-        />
-        <textarea
-          placeholder="Описание"
-          value={description}
-          onChange={(event) => setDescription(event.target.value)}
-          required
-        />
-        <textarea
-          placeholder="Класс"
-          value={charater_class}
-          onChange={(event) => setCharater_Class(event.target.value)}
-          required
-        />
-        <button type="submit">Создать персонажа</button>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label htmlFor="user-select">Пользователь:</label>
+          <select
+            id="user-select"
+            value={selectedUserId}
+            onChange={(event) => setSelectedUserId(event.target.value)}
+          >
+            {users.map((user) => (
+              <option key={user.id} value={String(user.id)}>
+                {user.username}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label htmlFor="note-text">Заметка:</label>
+          <textarea
+            id="note-text"
+            value={text}
+            onChange={(event) => setText(event.target.value)}
+            placeholder="Не забыть сделать домашку"
+            rows={4}
+            required
+          />
+        </div>
+
+        <button type="submit">Отправить</button>
       </form>
-
-      <section>
-        {characters.map((character) => (
-          <article key={character.id}>
-            <h2>{character.name}</h2>
-            <p>{character.charater_class}</p>
-            <p>Уровень: {character.level}</p>
-            <p>Оружие: {character.weapon}</p>
-            <p>{character.description}</p>
-          </article>
-        ))}
-      </section>
     </main>
   );
 }
 
 export default App;
-

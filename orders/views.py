@@ -1,39 +1,33 @@
-from rest_framework.decorators import api_view
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
-from orders.models import Charaters
-from .serializers import BurgerOrdersSerilizer, CharatersSerilizer
+
+@api_view(['GET'])
+def get_users(request):
+    users = [
+        {"id": 1, "username": "magamet", "email": "test@gmail.com"},
+        {"id": 2, "username": "ali", "email": "ali@gmail.com"},
+    ]
+    return Response(users)
+
 
 @api_view(['POST'])
-def create_orders(request):
-    serializer = BurgerOrdersSerilizer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+def create_note(request):
+    user_id = request.data.get('user_id')
+    text = request.data.get('text')
 
-class CharatersCreatersView(APIView):
-    def post(self, request):
-        serializer = CharatersSerilizer(data=request.data)
-
-        if serializer.is_valid():
-            serializer.save()
-
-            return Response(
-                serializer.data,
-                status=status.HTTP_201_CREATED,
-            )
-        
+    if user_id is None or text is None:
         return Response(
-            serializer.errors,
+            {"detail": "user_id and text are required"},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    def get(self, request):
-        characters = Charaters.objects.all()
-
-        serializer = CharatersSerilizer(characters, many=True)
-
-        return Response(serializer.data)
+    return Response(
+        {
+            "message": "Заметка создана",
+            "user_id": user_id,
+            "text": text,
+        },
+        status=status.HTTP_201_CREATED,
+    )
