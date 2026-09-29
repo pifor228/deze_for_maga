@@ -667,7 +667,7 @@
 
 
 
-import { useEffect, useState } from "react";
+import { useState, type FormEvent } from "react";
 import axios from "axios";
 
 type User = {
@@ -676,84 +676,76 @@ type User = {
   email: string;
 };
 
-const api = axios.create({
-  baseURL: "http://127.0.0.1:8000/api",
-});
+const api = axios.create({ baseURL: "http://127.0.0.1:8000/api" });
 
-function App() {
+export default function App() {
   const [users, setUsers] = useState<User[]>([]);
-  const [selectedUserId, setSelectedUserId] = useState<string>("");
-  const [text, setText] = useState("");
-  const [message, setMessage] = useState("");
+  const [search, setSearch] = useState("");
+  const [hasSearched, setHasSearched] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  useEffect(() => {
-    api
-      .get<User[]>("/users/")
-      .then((response) => {
-        setUsers(response.data);
-        if (response.data.length > 0) {
-          setSelectedUserId(String(response.data[0].id));
-        }
-      })
-      .catch(() => setMessage("Не удалось загрузить пользователей"));
-  }, []);
-
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setMessage("");
+    setIsLoading(true);
+    setHasSearched(true);
+    setError("");
 
     try {
-      await api.post("/notes/", {
-        user_id: Number(selectedUserId),
-        text,
+      const response = await api.get<User[]>("/users/", {
+        params: search.trim() ? { search: search.trim() } : undefined,
       });
-
-      const selectedUser = users.find((user) => user.id === Number(selectedUserId));
-      setMessage(`Заметка создана для ${selectedUser?.username ?? "пользователя"}`);
-      setText("");
+      setUsers(response.data);
     } catch {
-      setMessage("Не удалось отправить заметку");
+      setUsers([]);
+      setError("Не удалось загрузить пользователей");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <main>
-      <h1>Заметка</h1>
-
-      {message && <p>{message}</p>}
+      <h1>Поиск пользователя</h1>
 
       <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="user-select">Пользователь:</label>
-          <select
-            id="user-select"
-            value={selectedUserId}
-            onChange={(event) => setSelectedUserId(event.target.value)}
-          >
-            {users.map((user) => (
-              <option key={user.id} value={String(user.id)}>
-                {user.username}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label htmlFor="note-text">Заметка:</label>
-          <textarea
-            id="note-text"
-            value={text}
-            onChange={(event) => setText(event.target.value)}
-            placeholder="Не забыть сделать домашку"
-            rows={4}
-            required
+        <label htmlFor="username-search">
+          <input
+            id="username-search"
+            type="text"
+            placeholder="Имя пользователя"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
           />
-        </div>
-
-        <button type="submit">Отправить</button>
+        </label>
+        <button type="submit" disabled={isLoading}>
+          {isLoading ? "Поиск..." : "Найти"}
+        </button>
       </form>
+
+      <section aria-live="polite" aria-busy={isLoading}>
+        {isLoading && <p>Загрузка...</p>}
+        {error && <p role="alert">{error}</p>}
+        {hasSearched && !isLoading && !error && users.length === 0 && (
+          <p>Пользователи не найдены</p>
+        )}
+        {users.length > 0 && !isLoading && (
+          <ul>
+            {users.map((user) => (
+              <li key={user.id}>
+                <div>
+                  <strong>{user.username}</strong>
+                  {user.email ? (
+                    <a href={`mailto:${user.email}`}>{user.email}</a>
+                  ) : (
+                    <p>Email не указан</p>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </main>
   );
 }
-
-export default App;

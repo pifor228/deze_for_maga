@@ -149,3 +149,35 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+:root {
+  color-scheme: light;
+  font: 16px/1.4 Arial, sans-serif;
+  color: #222;
+  background: #fff;
+}
+
+#root {
+  display: block;
+  width: auto;
+  max-width: none;
+  min-height: 100vh;
+  margin: 0;
+  border: 0;
+  text-align: left;
+}
+
+body {
+  margin: 8px;
+}
+
+h1 {
+  margin: 0 0 16px;
+  color: #222;
+  font: bold 24px/1.2 Arial, sans-serif;
+  letter-spacing: 0;
+}
+
+main {
+  padding: 0;
+}
