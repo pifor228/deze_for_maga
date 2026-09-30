@@ -1,3 +1,188 @@
+import { useEffect, useState, type FormEvent } from "react";
+import axios from "axios";
+
+type GameResult = {
+  id: number;
+  player_name: string;
+  attempts: number;
+  result: "win" | "lose";
+  created_at?: string;
+};
+
+type NewGameResult = Omit<GameResult, "id" | "created_at">;
+
+
+const api = axios.create({ baseURL: "http://127.0.0.1:8000/api/" });
+
+export default function App() {
+  const [results, setResults] = useState<GameResult[]>([]);
+  const [playerName, setPlayerName] = useState("");
+  const [isGameStarted, setIsGameStarted] = useState(false);
+
+
+  const [targetNumber, setTargetNumber] = useState<number | null>(null);
+  const [guess, setGuess] = useState("");
+  const [attempts, setAttempts] = useState(0);
+  const [hint, setHint] = useState("");
+  const [isGameOver, setIsGameOver] = useState(false);
+
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState("");
+
+
+  const fetchResults = (signal?: AbortSignal) => {
+    api
+      .get<GameResult[]>("game-results/", { signal })
+      .then((response) => setResults(response.data))
+      .catch((requestError: unknown) => {
+        if (!axios.isCancel(requestError)) {
+          setError("Не удалось загрузить результаты. Проверьте Django.");
+        }
+      })
+      .finally(() => {
+        if (!signal?.aborted) setIsLoading(false);
+      });
+  };
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchResults(controller.signal);
+    return () => controller.abort();
+  }, []);
+
+
+  const handleStartGame = (event: FormEvent) => {
+    event.preventDefault();
+    if (!playerName.trim()) return;
+
+    const randomNum = Math.floor(Math.random() * 100) + 1;
+    setTargetNumber(randomNum);
+    setAttempts(0);
+    setHint("");
+    setIsGameOver(false);
+    setIsGameStarted(true);
+  };
+
+  const handleGuessSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+    const numGuess = parseInt(guess, 10);
+    if (isNaN(numGuess) || targetNumber === null) return;
+
+    const newAttempts = attempts + 1;
+    setAttempts(newAttempts);
+    setGuess("");
+
+    if (numGuess === targetNumber) {
+      setHint("угадано 🎉");
+      setIsGameOver(true);
+      await saveGameResult(newAttempts, "win");
+    } else if (numGuess < targetNumber) {
+      setHint("число больше");
+    } else {
+      setHint("число меньше");
+    }
+  };
+
+
+  const saveGameResult = async (finalAttempts: number, gameResult: "win" | "lose") => {
+    setIsSaving(true);
+    setError("");
+
+    try {
+      const payload: NewGameResult = {
+        player_name: playerName.trim(),
+        attempts: finalAttempts,
+        result: gameResult,
+      };
+
+      const response = await api.post<GameResult>("game-results/", payload);
+      setResults((prev) => [response.data, ...prev]);
+    } catch {
+      setError("Не удалось сохранить результат игры.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+
+  const handleRestart = () => {
+    setIsGameStarted(false);
+    setPlayerName("");
+    setGuess("");
+    setHint("");
+    setAttempts(0);
+    setIsGameOver(false);
+  };
+
+  return (
+    <main style={{ maxWidth: "500px", margin: "20px auto", fontFamily: "sans-serif" }}>
+      <h1>Игра «Угадай число»</h1>
+
+      {!isGameStarted ? (
+        <form onSubmit={handleStartGame}>
+          <div>
+            <label htmlFor="player-name">Введите ваше имя: </label>
+            <input
+              id="player-name"
+              value={playerName}
+              onChange={(e) => setPlayerName(e.target.value)}
+              required
+            />
+          </div>
+          <button type="submit">Начать игру</button>
+        </form>
+      ) : (
+        <div>
+          <p>Игрок: <strong>{playerName}</strong></p>
+          <p>Количество попыток: <strong>{attempts}</strong></p>
+          {!isGameOver && (
+            <form onSubmit={handleGuessSubmit}>
+              <input
+                type="number"
+                min="1"
+                max="100"
+                placeholder="Число от 1 до 100"
+                value={guess}
+                onChange={(e) => setGuess(e.target.value)}
+                required
+              />
+              <button type="submit" disabled={isSaving}>
+                Проверить
+              </button>
+            </form>
+          )}
+
+          {hint && <h2>Подсказка: {hint}</h2>}
+
+          <button onClick={handleRestart} style={{ marginTop: "15px" }}>
+            Начать заново
+          </button>
+        </div>
+      )}
+
+      {error && <p role="alert" style={{ color: "red" }}>{error}</p>}
+
+      <hr style={{ margin: "30px 0" }} />
+
+      <h2>Таблица результатов</h2>
+      {isLoading ? (
+        <p>Загрузка...</p>
+      ) : results.length === 0 ? (
+        <p>Результатов пока нет</p>
+      ) : (
+        <ul>
+          {results.map((res) => (
+            <li key={res.id}>
+              {res.player_name} — {res.result === "win" ? "Победа" : "Поражение"}, попыток: {res.attempts}
+            </li>
+          ))}
+        </ul>
+      )}
+    </main>
+  );
+}
 // import Ceader from "./Component/Ceader/ceader"
 // import Header from "./Component/Header/header"
 // import MovieCard from "./Component/MovieCard/moviecard"
@@ -667,85 +852,85 @@
 
 
 
-import { useState, type FormEvent } from "react";
-import axios from "axios";
+// import { useState, type FormEvent } from "react";
+// import axios from "axios";
 
-type User = {
-  id: number;
-  username: string;
-  email: string;
-};
+// type User = {
+//   id: number;
+//   username: string;
+//   email: string;
+// };
 
-const api = axios.create({ baseURL: "http://127.0.0.1:8000/api" });
+// const api = axios.create({ baseURL: "http://127.0.0.1:8000/api" });
 
-export default function App() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [search, setSearch] = useState("");
-  const [hasSearched, setHasSearched] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+// export default function App() {
+//   const [users, setUsers] = useState<User[]>([]);
+//   const [search, setSearch] = useState("");
+//   const [hasSearched, setHasSearched] = useState(false);
+//   const [isLoading, setIsLoading] = useState(false);
+//   const [error, setError] = useState("");
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setIsLoading(true);
-    setHasSearched(true);
-    setError("");
+//   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+//     event.preventDefault();
+//     setIsLoading(true);
+//     setHasSearched(true);
+//     setError("");
 
-    try {
-      const response = await api.get<User[]>("/users/", {
-        params: search.trim() ? { search: search.trim() } : undefined,
-      });
-      setUsers(response.data);
-    } catch {
-      setUsers([]);
-      setError("Не удалось загрузить пользователей");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+//     try {
+//       const response = await api.get<User[]>("/users/", {
+//         params: search.trim() ? { search: search.trim() } : undefined,
+//       });
+//       setUsers(response.data);
+//     } catch {
+//       setUsers([]);
+//       setError("Не удалось загрузить пользователей");
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   };
 
-  return (
-    <main>
-      <h1>Поиск пользователя</h1>
+//   return (
+//     <main>
+//       <h1>Поиск пользователя</h1>
 
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="username-search">
-          <input
-            id="username-search"
-            type="text"
-            placeholder="Имя пользователя"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-          />
-        </label>
-        <button type="submit" disabled={isLoading}>
-          {isLoading ? "Поиск..." : "Найти"}
-        </button>
-      </form>
+//       <form onSubmit={handleSubmit}>
+//         <label htmlFor="username-search">
+//           <input
+//             id="username-search"
+//             type="text"
+//             placeholder="Имя пользователя"
+//             value={search}
+//             onChange={(event) => setSearch(event.target.value)}
+//           />
+//         </label>
+//         <button type="submit" disabled={isLoading}>
+//           {isLoading ? "Поиск..." : "Найти"}
+//         </button>
+//       </form>
 
-      <section aria-live="polite" aria-busy={isLoading}>
-        {isLoading && <p>Загрузка...</p>}
-        {error && <p role="alert">{error}</p>}
-        {hasSearched && !isLoading && !error && users.length === 0 && (
-          <p>Пользователи не найдены</p>
-        )}
-        {users.length > 0 && !isLoading && (
-          <ul>
-            {users.map((user) => (
-              <li key={user.id}>
-                <div>
-                  <strong>{user.username}</strong>
-                  {user.email ? (
-                    <a href={`mailto:${user.email}`}>{user.email}</a>
-                  ) : (
-                    <p>Email не указан</p>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-    </main>
-  );
-}
+//       <section aria-live="polite" aria-busy={isLoading}>
+//         {isLoading && <p>Загрузка...</p>}
+//         {error && <p role="alert">{error}</p>}
+//         {hasSearched && !isLoading && !error && users.length === 0 && (
+//           <p>Пользователи не найдены</p>
+//         )}
+//         {users.length > 0 && !isLoading && (
+//           <ul>
+//             {users.map((user) => (
+//               <li key={user.id}>
+//                 <div>
+//                   <strong>{user.username}</strong>
+//                   {user.email ? (
+//                     <a href={`mailto:${user.email}`}>{user.email}</a>
+//                   ) : (
+//                     <p>Email не указан</p>
+//                   )}
+//                 </div>
+//               </li>
+//             ))}
+//           </ul>
+//         )}
+//       </section>
+//     </main>
+//   );
+// }
