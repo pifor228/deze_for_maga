@@ -1,188 +1,237 @@
-import { useEffect, useState, type FormEvent } from "react";
-import axios from "axios";
+// import { useEffect, useState, type FormEvent } from "react";
+// import axios from "axios";
 
-type GameResult = {
-  id: number;
-  player_name: string;
-  attempts: number;
-  result: "win" | "lose";
-  created_at?: string;
+// type GameResult = {
+//   id: number;
+//   player_name: string;
+//   attempts: number;
+//   result: "win" | "lose";
+//   created_at?: string;
+// };
+
+// type NewGameResult = Omit<GameResult, "id" | "created_at">;
+
+
+// const api = axios.create({ baseURL: "http://127.0.0.1:8000/api/" });
+
+// export default function App() {
+//   const [results, setResults] = useState<GameResult[]>([]);
+//   const [playerName, setPlayerName] = useState("");
+//   const [isGameStarted, setIsGameStarted] = useState(false);
+
+
+//   const [targetNumber, setTargetNumber] = useState<number | null>(null);
+//   const [guess, setGuess] = useState("");
+//   const [attempts, setAttempts] = useState(0);
+//   const [hint, setHint] = useState("");
+//   const [isGameOver, setIsGameOver] = useState(false);
+
+
+//   const [isLoading, setIsLoading] = useState(true);
+//   const [isSaving, setIsSaving] = useState(false);
+//   const [error, setError] = useState("");
+
+
+//   const fetchResults = (signal?: AbortSignal) => {
+//     api
+//       .get<GameResult[]>("game-results/", { signal })
+//       .then((response) => setResults(response.data))
+//       .catch((requestError: unknown) => {
+//         if (!axios.isCancel(requestError)) {
+//           setError("Не удалось загрузить результаты. Проверьте Django.");
+//         }
+//       })
+//       .finally(() => {
+//         if (!signal?.aborted) setIsLoading(false);
+//       });
+//   };
+
+//   useEffect(() => {
+//     const controller = new AbortController();
+//     fetchResults(controller.signal);
+//     return () => controller.abort();
+//   }, []);
+
+
+//   const handleStartGame = (event: FormEvent) => {
+//     event.preventDefault();
+//     if (!playerName.trim()) return;
+
+//     const randomNum = Math.floor(Math.random() * 100) + 1;
+//     setTargetNumber(randomNum);
+//     setAttempts(0);
+//     setHint("");
+//     setIsGameOver(false);
+//     setIsGameStarted(true);
+//   };
+
+//   const handleGuessSubmit = async (event: FormEvent) => {
+//     event.preventDefault();
+//     const numGuess = parseInt(guess, 10);
+//     if (isNaN(numGuess) || targetNumber === null) return;
+
+//     const newAttempts = attempts + 1;
+//     setAttempts(newAttempts);
+//     setGuess("");
+
+//     if (numGuess === targetNumber) {
+//       setHint("угадано 🎉");
+//       setIsGameOver(true);
+//       await saveGameResult(newAttempts, "win");
+//     } else if (numGuess < targetNumber) {
+//       setHint("число больше");
+//     } else {
+//       setHint("число меньше");
+//     }
+//   };
+
+
+//   const saveGameResult = async (finalAttempts: number, gameResult: "win" | "lose") => {
+//     setIsSaving(true);
+//     setError("");
+
+//     try {
+//       const payload: NewGameResult = {
+//         player_name: playerName.trim(),
+//         attempts: finalAttempts,
+//         result: gameResult,
+//       };
+
+//       const response = await api.post<GameResult>("game-results/", payload);
+//       setResults((prev) => [response.data, ...prev]);
+//     } catch {
+//       setError("Не удалось сохранить результат игры.");
+//     } finally {
+//       setIsSaving(false);
+//     }
+//   };
+
+
+//   const handleRestart = () => {
+//     setIsGameStarted(false);
+//     setPlayerName("");
+//     setGuess("");
+//     setHint("");
+//     setAttempts(0);
+//     setIsGameOver(false);
+//   };
+
+//   return (
+//     <main style={{ maxWidth: "500px", margin: "20px auto", fontFamily: "sans-serif" }}>
+//       <h1>Игра «Угадай число»</h1>
+
+//       {!isGameStarted ? (
+//         <form onSubmit={handleStartGame}>
+//           <div>
+//             <label htmlFor="player-name">Введите ваше имя: </label>
+//             <input
+//               id="player-name"
+//               value={playerName}
+//               onChange={(e) => setPlayerName(e.target.value)}
+//               required
+//             />
+//           </div>
+//           <button type="submit">Начать игру</button>
+//         </form>
+//       ) : (
+//         <div>
+//           <p>Игрок: <strong>{playerName}</strong></p>
+//           <p>Количество попыток: <strong>{attempts}</strong></p>
+//           {!isGameOver && (
+//             <form onSubmit={handleGuessSubmit}>
+//               <input
+//                 type="number"
+//                 min="1"
+//                 max="100"
+//                 placeholder="Число от 1 до 100"
+//                 value={guess}
+//                 onChange={(e) => setGuess(e.target.value)}
+//                 required
+//               />
+//               <button type="submit" disabled={isSaving}>
+//                 Проверить
+//               </button>
+//             </form>
+//           )}
+
+//           {hint && <h2>Подсказка: {hint}</h2>}
+
+//           <button onClick={handleRestart} style={{ marginTop: "15px" }}>
+//             Начать заново
+//           </button>
+//         </div>
+//       )}
+
+//       {error && <p role="alert" style={{ color: "red" }}>{error}</p>}
+
+//       <hr style={{ margin: "30px 0" }} />
+
+//       <h2>Таблица результатов</h2>
+//       {isLoading ? (
+//         <p>Загрузка...</p>
+//       ) : results.length === 0 ? (
+//         <p>Результатов пока нет</p>
+//       ) : (
+//         <ul>
+//           {results.map((res) => (
+//             <li key={res.id}>
+//               {res.player_name} — {res.result === "win" ? "Победа" : "Поражение"}, попыток: {res.attempts}
+//             </li>
+//           ))}
+//         </ul>
+//       )}
+//     </main>
+//   );
+// }
+import styles from "./App.module.css";
+import { useState } from "react";
+
+type SearchInputProps = {
+  value: string;
+  onTextChange: (value: string) => void;
 };
 
-type NewGameResult = Omit<GameResult, "id" | "created_at">;
 
+import type { ReactNode } from "react";
 
-const api = axios.create({ baseURL: "http://127.0.0.1:8000/api/" });
+type CardProps = {
+  children: ReactNode;
+};
 
-export default function App() {
-  const [results, setResults] = useState<GameResult[]>([]);
-  const [playerName, setPlayerName] = useState("");
-  const [isGameStarted, setIsGameStarted] = useState(false);
-
-
-  const [targetNumber, setTargetNumber] = useState<number | null>(null);
-  const [guess, setGuess] = useState("");
-  const [attempts, setAttempts] = useState(0);
-  const [hint, setHint] = useState("");
-  const [isGameOver, setIsGameOver] = useState(false);
-
-
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState("");
-
-
-  const fetchResults = (signal?: AbortSignal) => {
-    api
-      .get<GameResult[]>("game-results/", { signal })
-      .then((response) => setResults(response.data))
-      .catch((requestError: unknown) => {
-        if (!axios.isCancel(requestError)) {
-          setError("Не удалось загрузить результаты. Проверьте Django.");
-        }
-      })
-      .finally(() => {
-        if (!signal?.aborted) setIsLoading(false);
-      });
-  };
-
-  useEffect(() => {
-    const controller = new AbortController();
-    fetchResults(controller.signal);
-    return () => controller.abort();
-  }, []);
-
-
-  const handleStartGame = (event: FormEvent) => {
-    event.preventDefault();
-    if (!playerName.trim()) return;
-
-    const randomNum = Math.floor(Math.random() * 100) + 1;
-    setTargetNumber(randomNum);
-    setAttempts(0);
-    setHint("");
-    setIsGameOver(false);
-    setIsGameStarted(true);
-  };
-
-  const handleGuessSubmit = async (event: FormEvent) => {
-    event.preventDefault();
-    const numGuess = parseInt(guess, 10);
-    if (isNaN(numGuess) || targetNumber === null) return;
-
-    const newAttempts = attempts + 1;
-    setAttempts(newAttempts);
-    setGuess("");
-
-    if (numGuess === targetNumber) {
-      setHint("угадано 🎉");
-      setIsGameOver(true);
-      await saveGameResult(newAttempts, "win");
-    } else if (numGuess < targetNumber) {
-      setHint("число больше");
-    } else {
-      setHint("число меньше");
-    }
-  };
-
-
-  const saveGameResult = async (finalAttempts: number, gameResult: "win" | "lose") => {
-    setIsSaving(true);
-    setError("");
-
-    try {
-      const payload: NewGameResult = {
-        player_name: playerName.trim(),
-        attempts: finalAttempts,
-        result: gameResult,
-      };
-
-      const response = await api.post<GameResult>("game-results/", payload);
-      setResults((prev) => [response.data, ...prev]);
-    } catch {
-      setError("Не удалось сохранить результат игры.");
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-
-  const handleRestart = () => {
-    setIsGameStarted(false);
-    setPlayerName("");
-    setGuess("");
-    setHint("");
-    setAttempts(0);
-    setIsGameOver(false);
-  };
-
+function Card({ children }: CardProps) {
+  return <section className="card">{children}</section>;
+}
+function TextInput({ value, onTextChange }: SearchInputProps) {
   return (
-    <main style={{ maxWidth: "500px", margin: "20px auto", fontFamily: "sans-serif" }}>
-      <h1>Игра «Угадай число»</h1>
-
-      {!isGameStarted ? (
-        <form onSubmit={handleStartGame}>
-          <div>
-            <label htmlFor="player-name">Введите ваше имя: </label>
-            <input
-              id="player-name"
-              value={playerName}
-              onChange={(e) => setPlayerName(e.target.value)}
-              required
-            />
-          </div>
-          <button type="submit">Начать игру</button>
-        </form>
-      ) : (
-        <div>
-          <p>Игрок: <strong>{playerName}</strong></p>
-          <p>Количество попыток: <strong>{attempts}</strong></p>
-          {!isGameOver && (
-            <form onSubmit={handleGuessSubmit}>
-              <input
-                type="number"
-                min="1"
-                max="100"
-                placeholder="Число от 1 до 100"
-                value={guess}
-                onChange={(e) => setGuess(e.target.value)}
-                required
-              />
-              <button type="submit" disabled={isSaving}>
-                Проверить
-              </button>
-            </form>
-          )}
-
-          {hint && <h2>Подсказка: {hint}</h2>}
-
-          <button onClick={handleRestart} style={{ marginTop: "15px" }}>
-            Начать заново
-          </button>
-        </div>
-      )}
-
-      {error && <p role="alert" style={{ color: "red" }}>{error}</p>}
-
-      <hr style={{ margin: "30px 0" }} />
-
-      <h2>Таблица результатов</h2>
-      {isLoading ? (
-        <p>Загрузка...</p>
-      ) : results.length === 0 ? (
-        <p>Результатов пока нет</p>
-      ) : (
-        <ul>
-          {results.map((res) => (
-            <li key={res.id}>
-              {res.player_name} — {res.result === "win" ? "Победа" : "Поражение"}, попыток: {res.attempts}
-            </li>
-          ))}
-        </ul>
-      )}
-    </main>
+    <input className={styles.card}
+      type="text"
+      placeholder="Поиск"
+      value={value}
+      onChange={(event) => onTextChange(event.target.value)}
+    />
   );
 }
+
+function TextPreview({ text }: { text: string }) {
+  return <p>{text}</p>;
+}
+
+function App() {
+  const [search, setSearch] = useState("");
+
+  return (
+    <div>
+// я думал уже задание будет сложным по описанию свучало как пипец сложное на которое можно угробить час а в итоге за минут 30 15 справился я даже незнаю зачем добавляю этот коментарий
+      <h1>Поисковик</h1>
+      <TextInput value={search} onTextChange={setSearch} />
+      <Card>
+        <TextPreview text={search} />
+      </Card>
+    </div>
+  );
+}
+
+export default App;
 // import Ceader from "./Component/Ceader/ceader"
 // import Header from "./Component/Header/header"
 // import MovieCard from "./Component/MovieCard/moviecard"
