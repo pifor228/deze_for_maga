@@ -183,53 +183,98 @@
 //     </main>
 //   );
 // }
+// import styles from "./App.module.css";
+// import { useState } from "react";
+
+// type SearchInputProps = {
+//   value: string;
+//   onTextChange: (value: string) => void;
+// };
+
+
+// import type { ReactNode } from "react";
+
+// type CardProps = {
+//   children: ReactNode;
+// };
+
+// function Card({ children }: CardProps) {
+//   return <section className="card">{children}</section>;
+// }
+// function TextInput({ value, onTextChange }: SearchInputProps) {
+//   return (
+//     <input className={styles.card}
+//       type="text"
+//       placeholder="Поиск"
+//       value={value}
+//       onChange={(event) => onTextChange(event.target.value)}
+//     />
+//   );
+// }
+
+// function TextPreview({ text }: { text: string }) {
+//   return <p>{text}</p>;
+// }
+
+// function App() {
+//   const [search, setSearch] = useState("");
+
+//   return (
+//     <div>
+//       <h1>Поисковик</h1>
+//       <TextInput value={search} onTextChange={setSearch} />
+//       <Card>
+//         <TextPreview text={search} />
+//       </Card>
+//     </div>
+//   );
+// }
+// // я думал уже задание будет сложным по описанию свучало как пипец сложное на которое можно угробить час а в итоге за минут 30 15 справился я даже незнаю зачем добавляю этот коментарий
+
+// export default App;
+import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
 import styles from "./App.module.css";
-import { useState } from "react";
-
-type SearchInputProps = {
-  value: string;
-  onTextChange: (value: string) => void;
-};
-
-
-import type { ReactNode } from "react";
-
-type CardProps = {
-  children: ReactNode;
-};
-
-function Card({ children }: CardProps) {
-  return <section className="card">{children}</section>;
-}
-function TextInput({ value, onTextChange }: SearchInputProps) {
-  return (
-    <input className={styles.card}
-      type="text"
-      placeholder="Поиск"
-      value={value}
-      onChange={(event) => onTextChange(event.target.value)}
-    />
-  );
+function Home() {
+  return <h2>Главная страница</h2>;
 }
 
-function TextPreview({ text }: { text: string }) {
-  return <p>{text}</p>;
-}
-
-function App() {
-  const [search, setSearch] = useState("");
-
+function About() {
   return (
     <div>
-      <h1>Поисковик</h1>
-      <TextInput value={search} onTextChange={setSearch} />
-      <Card>
-        <TextPreview text={search} />
-      </Card>
+      <h2>О нас</h2>
+      <p>Здесь можно узнать о нас подробнее.</p>
+      <h1>Наш магазин существует уже с 2010 года а сайт был создан в 2015 году.</h1>
+      <h1>Если заметите какие-либо ошибки или имеете предложения, пожалуйста, свяжитесь с нами.</h1>  
     </div>
   );
 }
-// я думал уже задание будет сложным по описанию свучало как пипец сложное на которое можно угробить час а в итоге за минут 30 15 справился я даже незнаю зачем добавляю этот коментарий
+
+function Contacts() {
+  return (
+    <div>
+      <h2>Контакты</h2>
+      <p>Напишите свои контакты здесь.
+        вам не доуступно контакты так как вы не вошли в систему.</p>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <nav className={styles.cgr}>
+        <Link to="/">Главная</Link> | <Link to="/about">О нас</Link> |{" "}
+        <Link to="/contacts">Контакты</Link>
+      </nav>
+
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contacts" element={<Contacts />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
 
 export default App;
 // import Ceader from "./Component/Ceader/ceader"

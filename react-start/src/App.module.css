@@ -189,7 +189,12 @@
   background: #030303;
   border: 1px solid #007bff;
 }
-
+.cgr {
+  padding: 20px;
+  border-radius: 16px;
+  background: #fffefe;
+  border: 1px solid #007bff;
+}
 .title {
   margin: 0 0 8px;
   color: #007bff;
