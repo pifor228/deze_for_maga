@@ -4,27 +4,17 @@
 //   email: string;
 // };
 
-// export const getUsers = (): Promise<User[]> => {
-//   return new Promise((resolve) => {
-//     setTimeout(() => {
-//       resolve([
-//         {
-//           id: 1,
-//           name: "Магамет",
-//           email: "magamet@mail.com",
-//         },
-//         {
-//           id: 2,
-//           name: "Али",
-//           email: "ali@mail.com",
-//         },
-//         {
-//           id: 3,
-//           name: "Иван",
-//           email: "ivan@mail.com",
-//         },
-//       ]);
-//     }, 1000);
-//   });
-// };
+export const postUsers = (usersData: { name: string; email: string }) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([
+        {
+          id: Date.now(),
+          name: usersData.name,
+          email: usersData.email,
+        }
+      ]);
+    }, 1000);
+  });
+};
 

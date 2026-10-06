@@ -234,6 +234,9 @@
 // export default App;
 import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
 import styles from "./App.module.css";
+import { useState } from "react";
+import { postUsers } from "./mock/api";
+
 function Home() {
   return <h2>Главная страница</h2>;
 }
@@ -243,8 +246,62 @@ function About() {
     <div>
       <h2>О нас</h2>
       <p>Здесь можно узнать о нас подробнее.</p>
-      <h1>Наш магазин существует уже с 2010 года а сайт был создан в 2015 году.</h1>
-      <h1>Если заметите какие-либо ошибки или имеете предложения, пожалуйста, свяжитесь с нами.</h1>  
+      <h1>Наш магазин существует уже с 2010 года, а сайт был создан в 2015 году.</h1>
+      <h1>Если заметите какие-либо ошибки или имеете предложения, пожалуйста, свяжитесь с нами.</h1>
+    </div>
+  );
+}
+
+function PostUsersPage() {
+  const [name, setName] = useState(""); 
+  const [email, setEmail] = useState("");
+  const [users, setUsers] = useState<{ id: number; name: string; email: string }[]>([]);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (name.trim() && email.trim()) {
+    postUsers({ name, email }).then((data: any) => {
+      setUsers(data);
+      setName("");
+      setEmail("");
+    });
+    }
+  };
+
+  return (
+    <div> 
+      <h2>Пользователи</h2>
+      <p>Здесь можно добавлять новых пользователей.</p>
+      <form onSubmit={handleSubmit}>
+        <input className={styles.cgr}
+          type="text"
+          placeholder="Имя пользователя"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <input className={styles.cgr}
+          type="email"
+          placeholder="Email пользователя"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <button className={styles.cgr} type="submit">
+          Добавить пользователя
+        </button>
+      </form>
+
+      {users.length > 0 && (
+        <div>
+          <h3>Добавленные пользователи:</h3>
+          <ul>
+            {users.map((user) => (
+              <li key={user.id}>
+                {user.name} - {user.email}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
@@ -253,8 +310,7 @@ function Contacts() {
   return (
     <div>
       <h2>Контакты</h2>
-      <p>Напишите свои контакты здесь.
-        вам не доуступно контакты так как вы не вошли в систему.</p>
+      <p>Напишите свои контакты здесь. Вам недоступны контакты, так как вы не вошли в систему.</p>
     </div>
   );
 }
@@ -263,14 +319,15 @@ function App() {
   return (
     <BrowserRouter>
       <nav className={styles.cgr}>
-        <Link to="/">Главная</Link> | <Link to="/about">О нас</Link> |{" "}
-        <Link to="/contacts">Контакты</Link>
+        <Link to="/">Главная</Link> | <Link to="/about">О нас</Link> | {" "}
+        <Link to="/contacts">Контакты</Link> | <Link to="/post-users">Пользователи</Link>
       </nav>
 
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/contacts" element={<Contacts />} />
+        <Route path="/post-users" element={<PostUsersPage />} />
       </Routes>
     </BrowserRouter>
   );
