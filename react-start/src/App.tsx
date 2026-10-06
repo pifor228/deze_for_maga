@@ -234,8 +234,8 @@
 // export default App;
 import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
 import styles from "./App.module.css";
-import { useState } from "react";
-import { postUsers } from "./mock/api";
+import { useState, type FormEvent } from "react";
+import { postUsers, type User } from "./mock/api";
 
 function Home() {
   return <h2>Главная страница</h2>;
@@ -253,42 +253,60 @@ function About() {
 }
 
 function PostUsersPage() {
-  const [name, setName] = useState(""); 
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [users, setUsers] = useState<{ id: number; name: string; email: string }[]>([]);
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const [users, setUsers] = useState<User[]>([]);
+  const [error, setError] = useState("");
 
-    if (name.trim() && email.trim()) {
-    postUsers({ name, email }).then((data: any) => {
-      setUsers(data);
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim();
+
+    if (!trimmedName || !trimmedEmail) {
+      setError("Введите имя и email");
+      return;
+    }
+
+    try {
+      const savedUser = await postUsers({ name: trimmedName, email: trimmedEmail });
+      setUsers((prev) => [...prev, savedUser]);
       setName("");
       setEmail("");
-    });
+      setError("");
+    } catch {
+      setError("Не удалось сохранить пользователя");
     }
   };
 
   return (
-    <div> 
+    <div>
       <h2>Пользователи</h2>
       <p>Здесь можно добавлять новых пользователей.</p>
       <form onSubmit={handleSubmit}>
-        <input className={styles.cgr}
+        <input
+          className={styles.cgr}
           type="text"
           placeholder="Имя пользователя"
           value={name}
           onChange={(e) => setName(e.target.value)}
+          required
         />
-        <input className={styles.cgr}
+        <input
+          className={styles.cgr}
           type="email"
           placeholder="Email пользователя"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          required
         />
         <button className={styles.cgr} type="submit">
           Добавить пользователя
         </button>
       </form>
+
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
       {users.length > 0 && (
         <div>
