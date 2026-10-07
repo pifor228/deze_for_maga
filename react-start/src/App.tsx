@@ -232,126 +232,126 @@
 // // я думал уже задание будет сложным по описанию свучало как пипец сложное на которое можно угробить час а в итоге за минут 30 15 справился я даже незнаю зачем добавляю этот коментарий
 
 // export default App;
-import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
-import styles from "./App.module.css";
-import { useState, type FormEvent } from "react";
-import { postUsers, type User } from "./mock/api";
+// import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
+// import styles from "./App.module.css";
+// import { useState, type FormEvent } from "react";
+// import { postUsers, type User } from "./mock/api";
 
-function Home() {
-  return <h2>Главная страница</h2>;
-}
+// function Home() {
+//   return <h2>Главная страница</h2>;
+// }
 
-function About() {
-  return (
-    <div>
-      <h2>О нас</h2>
-      <p>Здесь можно узнать о нас подробнее.</p>
-      <h1>Наш магазин существует уже с 2010 года, а сайт был создан в 2015 году.</h1>
-      <h1>Если заметите какие-либо ошибки или имеете предложения, пожалуйста, свяжитесь с нами.</h1>
-    </div>
-  );
-}
+// function About() {
+//   return (
+//     <div>
+//       <h2>О нас</h2>
+//       <p>Здесь можно узнать о нас подробнее.</p>
+//       <h1>Наш магазин существует уже с 2010 года, а сайт был создан в 2015 году.</h1>
+//       <h1>Если заметите какие-либо ошибки или имеете предложения, пожалуйста, свяжитесь с нами.</h1>
+//     </div>
+//   );
+// }
 
-function PostUsersPage() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [users, setUsers] = useState<User[]>([]);
-  const [error, setError] = useState("");
+// function PostUsersPage() {
+//   const [name, setName] = useState("");
+//   const [email, setEmail] = useState("");
+//   const [users, setUsers] = useState<User[]>([]);
+//   const [error, setError] = useState("");
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+//   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+//     event.preventDefault();
 
-    const trimmedName = name.trim();
-    const trimmedEmail = email.trim();
+//     const trimmedName = name.trim();
+//     const trimmedEmail = email.trim();
 
-    if (!trimmedName || !trimmedEmail) {
-      setError("Введите имя и email");
-      return;
-    }
+//     if (!trimmedName || !trimmedEmail) {
+//       setError("Введите имя и email");
+//       return;
+//     }
 
-    try {
-      const savedUser = await postUsers({ name: trimmedName, email: trimmedEmail });
-      setUsers((prev) => [...prev, savedUser]);
-      setName("");
-      setEmail("");
-      setError("");
-    } catch {
-      setError("Не удалось сохранить пользователя");
-    }
-  };
+//     try {
+//       const savedUser = await postUsers({ name: trimmedName, email: trimmedEmail });
+//       setUsers((prev) => [...prev, savedUser]);
+//       setName("");
+//       setEmail("");
+//       setError("");
+//     } catch {
+//       setError("Не удалось сохранить пользователя");
+//     }
+//   };
 
-  return (
-    <div>
-      <h2>Пользователи</h2>
-      <p>Здесь можно добавлять новых пользователей.</p>
-      <form onSubmit={handleSubmit}>
-        <input
-          className={styles.cgr}
-          type="text"
-          placeholder="Имя пользователя"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
-        <input
-          className={styles.cgr}
-          type="email"
-          placeholder="Email пользователя"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <button className={styles.cgr} type="submit">
-          Добавить пользователя
-        </button>
-      </form>
+//   return (
+//     <div>
+//       <h2>Пользователи</h2>
+//       <p>Здесь можно добавлять новых пользователей.</p>
+//       <form onSubmit={handleSubmit}>
+//         <input
+//           className={styles.cgr}
+//           type="text"
+//           placeholder="Имя пользователя"
+//           value={name}
+//           onChange={(e) => setName(e.target.value)}
+//           required
+//         />
+//         <input
+//           className={styles.cgr}
+//           type="email"
+//           placeholder="Email пользователя"
+//           value={email}
+//           onChange={(e) => setEmail(e.target.value)}
+//           required
+//         />
+//         <button className={styles.cgr} type="submit">
+//           Добавить пользователя
+//         </button>
+//       </form>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+// //       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      {users.length > 0 && (
-        <div>
-          <h3>Добавленные пользователи:</h3>
-          <ul>
-            {users.map((user) => (
-              <li key={user.id}>
-                {user.name} - {user.email}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </div>
-  );
-}
+//       {users.length > 0 && (
+//         <div>
+//           <h3>Добавленные пользователи:</h3>
+//           <ul>
+//             {users.map((user) => (
+//               <li key={user.id}>
+//                 {user.name} - {user.email}
+//               </li>
+//             ))}
+//           </ul>
+//         </div>
+//       )}
+//     </div>
+//   );
+// }
 
-function Contacts() {
-  return (
-    <div>
-      <h2>Контакты</h2>
-      <p>Напишите свои контакты здесь. Вам недоступны контакты, так как вы не вошли в систему.</p>
-    </div>
-  );
-}
+// function Contacts() {
+//   return (
+//     <div>
+//       <h2>Контакты</h2>
+//       <p>Напишите свои контакты здесь. Вам недоступны контакты, так как вы не вошли в систему.</p>
+//     </div>
+//   );
+// }
 
-function App() {
-  return (
-    <BrowserRouter>
-      <nav className={styles.cgr}>
-        <Link to="/">Главная</Link> | <Link to="/about">О нас</Link> | {" "}
-        <Link to="/contacts">Контакты</Link> | <Link to="/post-users">Пользователи</Link>
-      </nav>
+// function App() {
+//   return (
+//     <BrowserRouter>
+//       <nav className={styles.cgr}>
+//         <Link to="/">Главная</Link> | <Link to="/about">О нас</Link> | {" "}
+//         <Link to="/contacts">Контакты</Link> | <Link to="/post-users">Пользователи</Link>
+//       </nav>
 
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contacts" element={<Contacts />} />
-        <Route path="/post-users" element={<PostUsersPage />} />
-      </Routes>
-    </BrowserRouter>
-  );
-}
+//       <Routes>
+//         <Route path="/" element={<Home />} />
+//         <Route path="/about" element={<About />} />
+//         <Route path="/contacts" element={<Contacts />} />
+//         <Route path="/post-users" element={<PostUsersPage />} />
+//       </Routes>
+//     </BrowserRouter>
+//   );
+// }
 
-export default App;
+// export default App;
 // import Ceader from "./Component/Ceader/ceader"
 // import Header from "./Component/Header/header"
 // import MovieCard from "./Component/MovieCard/moviecard"
@@ -1103,3 +1103,8 @@ export default App;
 //     </main>
 //   );
 // }
+import NotesManager from "./Component/NotesManager/notesmanager.jsx";
+
+export default function App() {
+  return <NotesManager />;
+}
