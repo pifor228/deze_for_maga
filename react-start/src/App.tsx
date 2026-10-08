@@ -1103,8 +1103,215 @@
 //     </main>
 //   );
 // }
-import NotesManager from "./Component/NotesManager/notesmanager.jsx";
+// import NotesManager from "./Component/NotesManager/notesmanager.jsx";
+
+// export default function App() {
+//   return <NotesManager />;
+// }
+import { useState, useEffect } from "react";
+import styles from "./App.module.css";
+import {
+  getTasks,
+  createTasks,
+  updateTasks,
+  deleteTasks,
+} from "./mock/api";
+import type { Task } from "./mock/api";
 
 export default function App() {
-  return <NotesManager />;
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [newTaskTitle, setNewTaskTitle] = useState("");
+  const [newTaskDescription, setNewTaskDescription] = useState("");
+  const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
+  const [editingTitle, setEditingTitle] = useState("");
+  const [editingDescription, setEditingDescription] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isCreating, setIsCreating] = useState(false);
+  const [updatingTaskId, setUpdatingTaskId] = useState<number | null>(null);
+  const [deletingTaskId, setDeletingTaskId] = useState<number | null>(null);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let isMounted = true;
+
+    getTasks()
+      .then((fetchedTasks) => {
+        if (isMounted) setTasks(fetchedTasks);
+      })
+      .catch(() => {
+        if (isMounted) setError("Не удалось загрузить задачи");
+      })
+      .finally(() => {
+        if (isMounted) setIsLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const handleCreateTask = async () => {
+    if (!newTaskTitle.trim()) return;
+
+    setIsCreating(true);
+    setError("");
+    try {
+      const createdTask = await createTasks({
+        title: newTaskTitle,
+        description: newTaskDescription,
+      });
+      setTasks((prev) => [...prev, createdTask]);
+      setNewTaskTitle("");
+      setNewTaskDescription("");
+    } catch {
+      setError("Не удалось создать задачу");
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const handleUpdateTask = async (taskId: number, updatedFields: Partial<Task>) => {
+    const currentTask = tasks.find((task) => task.id === taskId);
+    if (!currentTask) return false;
+
+    setUpdatingTaskId(taskId);
+    setError("");
+    try {
+      const updatedTask = await updateTasks(taskId, {
+        title: updatedFields.title ?? currentTask.title,
+        description: updatedFields.description ?? currentTask.description,
+        status: updatedFields.status ?? currentTask.status,
+      });
+      setTasks((prev) =>
+        prev.map((task) => (task.id === taskId ? updatedTask : task))
+      );
+      return true;
+    } catch {
+      setError("Не удалось обновить задачу");
+      return false;
+    } finally {
+      setUpdatingTaskId(null);
+    }
+  };
+
+  const handleDeleteTask = async (taskId: number) => {
+    setDeletingTaskId(taskId);
+    setError("");
+    try {
+      await deleteTasks(taskId);
+      setTasks((prev) => prev.filter((task) => task.id !== taskId));
+    } catch {
+      setError("Не удалось удалить задачу");
+    } finally {
+      setDeletingTaskId(null);
+    }
+  };
+
+  const handleEditTask = (task: Task) => {
+    setEditingTaskId(task.id);
+    setEditingTitle(task.title);
+    setEditingDescription(task.description);
+  };
+
+  const handleSaveTask = async (taskId: number) => {
+    if (!editingTitle.trim()) return;
+
+    const updated = await handleUpdateTask(taskId, {
+      title: editingTitle,
+      description: editingDescription,
+    });
+    if (updated) setEditingTaskId(null);
+  };
+
+  const handleStatusChange = (taskId: number, status: string) => {
+    if (status === "new" || status === "in-progress" || status === "completed") {
+      void handleUpdateTask(taskId, { status });
+    }
+  };
+
+  return (
+    <div>
+      <h1 className={styles.cgr}>Менеджер задач</h1>
+      {error && <p role="alert">{error}</p>}
+      {isLoading && <p role="status">Загрузка задач...</p>}
+      <div>
+        <input className={styles.cgr}
+          type="text"
+          placeholder="Новая задача"
+          value={newTaskTitle}
+          onChange={(e) => setNewTaskTitle(e.target.value)}
+        />
+        <textarea className={styles.cgr}
+          placeholder="Описание задачи"
+          value={newTaskDescription}
+          onChange={(e) => setNewTaskDescription(e.target.value)}
+        />
+        <button onClick={handleCreateTask} disabled={isCreating || isLoading}>
+          {isCreating ? "Добавление..." : "Добавить"}
+        </button>
+      </div>
+      {!isLoading && !error && tasks.length === 0 && <p>Задач пока нет</p>}
+      {!isLoading && (
+        <ul>
+        {tasks.map((task) => (
+          <li key={task.id}>
+            {updatingTaskId === task.id && <p role="status">Сохранение...</p>}
+            {deletingTaskId === task.id && <p role="status">Удаление...</p>}
+            {editingTaskId === task.id ? (
+              <div>
+                <input
+                  type="text"
+                  value={editingTitle}
+                  onChange={(e) => setEditingTitle(e.target.value)}
+                  aria-label="Название задачи"
+                />
+                <textarea
+                  value={editingDescription}
+                  onChange={(e) => setEditingDescription(e.target.value)}
+                  aria-label="Описание задачи"
+                />
+                <button
+                  onClick={() => handleSaveTask(task.id)}
+                  disabled={updatingTaskId === task.id}
+                >
+                  Сохранить
+                </button>
+                <button
+                  onClick={() => setEditingTaskId(null)}
+                  disabled={updatingTaskId === task.id}
+                >
+                  Отмена
+                </button>
+              </div>
+            ) : (
+              <>
+                <span>{task.title}</span>
+                <p>{task.description}</p>
+                <button onClick={() => handleEditTask(task)}>Редактировать</button>
+              </>
+            )}
+            <label>
+              Статус:
+              <select
+                value={task.status}
+                onChange={(e) => handleStatusChange(task.id, e.target.value)}
+                disabled={updatingTaskId === task.id || deletingTaskId === task.id}
+              >
+                <option value="new">Новое</option>
+                <option value="in-progress">В процессе</option>
+                <option value="completed">Выполнено</option>
+              </select>
+            </label>
+            <button
+              onClick={() => handleDeleteTask(task.id)}
+              disabled={deletingTaskId === task.id || updatingTaskId === task.id}
+            >
+              {deletingTaskId === task.id ? "Удаление..." : "Удалить"}
+            </button>
+          </li>
+        ))}
+        </ul>
+      )}
+    </div>
+  );
 }
