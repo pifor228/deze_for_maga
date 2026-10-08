@@ -18,6 +18,10 @@ export default function NotesManager() {
     setText("");
   }
 
+  function deleteNote(id) {
+    setNotes((currentNotes) => currentNotes.filter((note) => note.id !== id));
+  }
+
   return (
     <main>
       <h1 className={styles.cgr}>Мои заметки</h1>
@@ -41,6 +45,13 @@ export default function NotesManager() {
           {notes.map((note) => (
             <li key={note.id}>
               <p>{note.text}</p>
+              <button
+                type="button"
+                className={styles.ButtonCard}
+                onClick={() => deleteNote(note.id)}
+              >
+                Удалить
+              </button>
             </li>
           ))}
         </ul>
